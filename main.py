@@ -41,5 +41,9 @@ app = FastAPI(
 async def favicon():
     return Response(content="", media_type="image/x-icon")
 
+@app.get('/')
+async def index():
+    return {'message': 'Hello, World!'}
+
 
 app.include_router(meal_router.app, tags=['meal'])
