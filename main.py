@@ -18,7 +18,7 @@ SWAGGER_HEADERS = {
             'url': 'https://today.sunrin.kr/contact',
             'email': 'jeewon.kwon.0817@gmail.com',
             'license_info': {
-                'name': 'BSD 2-Clause License',
+                'name': 'BSD-2-Clause License',
                 'url': 'https://opensource.org/licenses/BSD-2-Clause'
             }
         }
