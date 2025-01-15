@@ -1,0 +1,7 @@
+model Date {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @unique
+  existence Boolean  @default(true)
+  rest      Boolean  @default(false)
+  meals     Meal[]
+}

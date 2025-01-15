@@ -1,0 +1,7 @@
+node_modules
+.pnpm-store
+.cache
+.env
+.DS_Store
+prisma/
+*.node

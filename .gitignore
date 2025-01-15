@@ -5,3 +5,5 @@ dist/
 .env
 .cache
 .DS_Store
+client/
+build/
