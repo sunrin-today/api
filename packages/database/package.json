@@ -47,9 +47,9 @@
   ],
   "exports": {
     "./client": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.js"
+      "types": "./client/index.d.ts",
+      "require": "./client/index.js",
+      "import": "./client//index.js"
     }
   }
 }
