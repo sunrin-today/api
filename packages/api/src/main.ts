@@ -14,7 +14,19 @@ async function bootstrap() {
 
   const isProduction = configService.get('NODE_ENV') === 'production';
 
-  const config = new DocumentBuilder().setTitle('선린투데이 API').build();
+  const config = new DocumentBuilder()
+    .setTitle('선린투데이 API')
+    .setDescription('선린인터넷고등학교 급식 서비스 API')
+    .setVersion('0.0.1')
+    .setContact(
+      'Jeewon Kwon',
+      'https://github.com/jwkwon0817',
+      'jeewon.kwon.0817@gmail.com',
+    )
+    .addServer('http://localhost:8000', 'Local Development')
+    .addServer('https://api.sunrin.kr', 'Production')
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+    .build();
 
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
