@@ -1,6 +1,6 @@
 model Meal {
   id      Int     @id @default(autoincrement())
-  dateId Int
+  dateId  Int
 
   meal    String  @db.VarChar(30)
   code    String? @db.VarChar(30)
