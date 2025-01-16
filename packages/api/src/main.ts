@@ -1,7 +1,12 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -30,6 +35,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -38,9 +44,15 @@ async function bootstrap() {
     }),
   );
 
+  const theme = new SwaggerTheme();
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   const swaggerEndpoint = configService.get('SWAGGER_ENDPOINT');
-  SwaggerModule.setup(swaggerEndpoint, app, documentFactory);
+  SwaggerModule.setup(swaggerEndpoint, app, documentFactory, {
+    customSiteTitle: '선린투데이 API',
+    explorer: true,
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.ONE_DARK),
+  });
 
   await app.listen(
     isProduction ? Number(configService.get('PORT') || 3000) : 8000,
