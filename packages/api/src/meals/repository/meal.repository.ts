@@ -6,6 +6,6 @@ export class MealRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getMeals() {
-    return this.prismaService.meal.findMany();
+    return await this.prismaService.meal.findMany();
   }
 }
