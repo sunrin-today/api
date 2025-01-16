@@ -54,6 +54,145 @@ export class MealRepository {
     };
   }
 
+  async getMealsForWeek(): Promise<DateDto[]> {
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = 일요일, 1 = 월요일, ..., 6 = 토요일
+
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - currentDay + (currentDay === 0 ? -6 : 1));
+    monday.setHours(0, 0, 0, 0);
+
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4);
+    friday.setHours(23, 59, 59, 999);
+
+    const weekMeals = await this.prismaService.date.findMany({
+      where: {
+        date: {
+          gte: monday,
+          lte: friday,
+        },
+      },
+      include: {
+        meals: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    return weekMeals.map((date) => ({
+      date: date.date,
+      meals: date.meals,
+      existence: date.existence,
+      rest: date.rest,
+    }));
+  }
+
+  async getMealsForMonth(): Promise<DateDto[]> {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    const monthMeals = await this.prismaService.date.findMany({
+      where: {
+        date: {
+          gte: firstDay,
+          lte: lastDay,
+        },
+      },
+      include: {
+        meals: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    return monthMeals.map((date) => ({
+      date: date.date,
+      meals: date.meals,
+      existence: date.existence,
+      rest: date.rest,
+    }));
+  }
+
+  async getMealsForPeriod(dateFrom: Date, dateTo: Date): Promise<DateDto[]> {
+    const periodMeals = await this.prismaService.date.findMany({
+      where: {
+        date: {
+          gte: dateFrom,
+          lte: dateTo,
+        },
+      },
+      include: {
+        meals: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    return periodMeals.map((date) => ({
+      date: date.date,
+      meals: date.meals,
+      existence: date.existence,
+      rest: date.rest,
+    }));
+  }
+
+  async getMealsWithLimit(dateFrom: Date, limit: number): Promise<DateDto[]> {
+    const meals = await this.prismaService.date.findMany({
+      where: {
+        date: {
+          gte: dateFrom,
+        },
+      },
+      include: {
+        meals: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+      take: limit,
+    });
+
+    return meals.map((date) => ({
+      date: date.date,
+      meals: date.meals,
+      existence: date.existence,
+      rest: date.rest,
+    }));
+  }
+
+  async getRestDaysForMonth(year: number, month: number): Promise<DateDto[]> {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const restDays = await this.prismaService.date.findMany({
+      where: {
+        date: {
+          gte: firstDay,
+          lte: lastDay,
+        },
+        rest: true,
+      },
+      include: {
+        meals: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    return restDays.map((date) => ({
+      date: date.date,
+      meals: date.meals,
+      existence: date.existence,
+      rest: date.rest,
+    }));
+  }
+
   async createMeal(data: DateCreateDto): Promise<boolean> {
     return await this.prismaService.$transaction(
       async (tx) => {
