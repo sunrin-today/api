@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Post,
@@ -106,5 +107,28 @@ export class MealsController {
   })
   async updateMeal(@Body() data: DateCreateDto, @Headers('KEY') key: string) {
     return await this.mealsService.updateMeal(data, key);
+  }
+
+  @Delete('/')
+  @ApiOperation({ summary: 'Delete meal' })
+  @ApiResponse({
+    status: 200,
+    description: 'Meal deleted successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid secret key',
+  })
+  @ApiHeader({
+    name: 'KEY',
+    required: true,
+    description: 'Secret key for the API',
+  })
+  async deleteMeal(@Query('date') date: string, @Headers('KEY') key) {
+    return await this.mealsService.deleteMeal(date, key);
   }
 }

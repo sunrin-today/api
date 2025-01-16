@@ -136,4 +136,46 @@ export class MealRepository {
       },
     );
   }
+
+  async deleteMeal(date: string): Promise<boolean> {
+    return await this.prismaService.$transaction(
+      async (tx) => {
+        const dateObject = new Date(date);
+
+        if (isNaN(dateObject.getTime())) {
+          throw new BadRequestException(
+            'Invalid date format. Please use YYYY-MM-DD',
+          );
+        }
+
+        const foundDate = await tx.date.findUnique({
+          where: {
+            date: dateObject,
+          },
+        });
+
+        if (!foundDate) {
+          throw new BadRequestException('No meal found for the date');
+        }
+
+        // 먼저 연관된 모든 Meal 레코드를 삭제
+        await tx.meal.deleteMany({
+          where: {
+            dateId: foundDate.id,
+          },
+        });
+
+        // 그 다음 Date 레코드 삭제
+        await tx.date.delete({
+          where: { id: foundDate.id },
+        });
+
+        return true;
+      },
+      {
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
+  }
 }

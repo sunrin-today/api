@@ -55,4 +55,14 @@ export class MealsService {
 
     return await this.mealRepository.updateMeal(data);
   }
+
+  async deleteMeal(date: string, key: string): Promise<boolean> {
+    const secretKey = this.configService.get('KEY');
+
+    if (key !== secretKey) {
+      throw new UnauthorizedException('Invalid secret key');
+    }
+
+    return await this.mealRepository.deleteMeal(date);
+  }
 }
