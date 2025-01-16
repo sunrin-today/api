@@ -29,6 +29,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-fastify": "^10.4.15",
+    "@nestjs/swagger": "^8.1.1",
     "@prisma/client": "^6.2.1",
     "@sunrintoday/api-database": "workspace:*",
     "class-transformer": "^0.5.1",
