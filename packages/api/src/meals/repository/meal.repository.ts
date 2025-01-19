@@ -11,26 +11,20 @@ import { DateCreateDto, DateDto } from '../dto/meal.dto';
 export class MealRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getMeals(): Promise<DateDto[]> {
-    const dates = await this.prismaService.date.findMany({
+  async getMeals() {
+    return await this.prismaService.date.findMany({
       include: {
         meals: true,
       },
+      omit: {},
     });
-
-    return dates.map((date) => ({
-      date: date.date,
-      meals: date.meals,
-      existence: date.existence,
-      rest: date.rest,
-    }));
   }
 
   async getMealById(id: number) {
     return await this.prismaService.meal.findUnique({ where: { id } });
   }
 
-  async getMealsByDate(date: Date): Promise<DateDto> {
+  async getMealsByDate(date: Date) {
     const foundDate = await this.prismaService.date.findUnique({
       where: { date },
       include: { meals: true },
@@ -44,14 +38,7 @@ export class MealRepository {
       );
     }
 
-    const { date: dateString, ...rest } = foundDate;
-
-    return {
-      date: dateString,
-      meals: foundDate.meals,
-      existence: rest.existence,
-      rest: rest.rest,
-    };
+    return foundDate;
   }
 
   async getMealsForWeek(): Promise<DateDto[]> {

@@ -15,7 +15,7 @@ export class MealsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getMeals() {
+  async getMeals(): Promise<DateDto[]> {
     return await this.mealRepository.getMeals();
   }
 
@@ -32,9 +32,7 @@ export class MealsService {
       );
     }
 
-    const meals = await this.mealRepository.getMealsByDate(dateObject);
-
-    return meals;
+    return await this.mealRepository.getMealsByDate(dateObject);
   }
 
   async getMealsForWeek(): Promise<DateDto[]> {

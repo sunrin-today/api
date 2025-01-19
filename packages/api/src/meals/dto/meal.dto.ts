@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Date as DateModel, Meal } from '@sunrintoday/api-database/client';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 
 import {
@@ -12,12 +13,11 @@ import {
 } from 'class-validator';
 import { format } from 'date-fns';
 
-export class MealDto {
+export class MealDto implements Meal {
   @ApiProperty({
     description: 'Meal ID',
     example: 1,
   })
-  @Expose()
   id: number;
 
   @ApiProperty({
@@ -39,7 +39,7 @@ export class MealDto {
   dateId: number;
 }
 
-export class DateDto {
+export class DateDto implements DateModel {
   @ApiProperty({
     description: 'Date of meals',
     example: '2024-06-05',

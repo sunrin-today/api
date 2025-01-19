@@ -1,14 +1,11 @@
-import {
-  ClassSerializerInterceptor,
-  Logger,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { CustomSerializerInterceptor } from './common/interceptors/custom-serializer.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
@@ -34,8 +31,17 @@ async function bootstrap() {
     .build();
 
   app.useGlobalFilters(new GlobalExceptionFilter());
+  // app.useGlobalInterceptors(new PrismaSerializerInterceptor());
+  // app.useGlobalInterceptors(
+  //   new ClassSerializerInterceptor(app.get(Reflector), {
+  //     excludeExtraneousValues: true,
+  //     exposeUnsetFields: false,
+  //   }),
+  // );
   app.useGlobalInterceptors(new TransformInterceptor());
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new CustomSerializerInterceptor(app.get(Reflector)),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

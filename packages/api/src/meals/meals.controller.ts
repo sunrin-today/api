@@ -15,7 +15,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { format } from 'date-fns';
-import { Serialize } from '~/common/interceptors/serialize.interceptor';
+import { ReturnType } from '~/common/interceptors/custom-serializer.interceptor';
 import { DateCreateDto, DateDto } from './dto/meal.dto';
 import { MealsService } from './meals.service';
 
@@ -29,8 +29,8 @@ export class MealsController {
     status: 200,
     description: 'Returns meal for the specified date',
   })
-  @Serialize(DateDto)
-  async getMeals(): Promise<DateDto[]> {
+  @ReturnType(DateDto)
+  async getMeals() {
     return await this.mealsService.getMeals();
   }
 
@@ -56,7 +56,7 @@ export class MealsController {
     status: 404,
     description: 'No meals found for the date',
   })
-  @Serialize(DateDto)
+  @ReturnType(DateDto)
   async getMealByDate(@Query('date') date: string): Promise<DateDto> {
     return await this.mealsService.getMealByDate(date);
   }
@@ -68,8 +68,8 @@ export class MealsController {
     description: 'Returns meal for today',
     type: DateDto,
   })
-  @Serialize(DateDto)
-  async getMealForToday(): Promise<DateDto> {
+  @ReturnType(DateDto)
+  async getMealForToday() {
     const today = new Date();
     return await this.mealsService.getMealByDate(format(today, 'yyyy-MM-dd'));
   }
@@ -81,8 +81,8 @@ export class MealsController {
     description: 'Returns meal for tomorrow',
     type: DateDto,
   })
-  @Serialize(DateDto)
-  async getMealForTomorrow(): Promise<DateDto> {
+  @ReturnType(DateDto)
+  async getMealForTomorrow() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return await this.mealsService.getMealByDate(
@@ -97,8 +97,8 @@ export class MealsController {
     description: 'Returns meal for yesterday',
     type: DateDto,
   })
-  @Serialize(DateDto)
-  async getMealForYesterday(): Promise<DateDto> {
+  @ReturnType(DateDto)
+  async getMealForYesterday() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     return await this.mealsService.getMealByDate(
@@ -113,8 +113,8 @@ export class MealsController {
     description: 'Returns meal for the week (Monday to Friday)',
     type: [DateDto],
   })
-  @Serialize(DateDto)
-  async getMealForWeek(): Promise<DateDto[]> {
+  @ReturnType(DateDto)
+  async getMealForWeek() {
     return await this.mealsService.getMealsForWeek();
   }
 
@@ -125,7 +125,7 @@ export class MealsController {
     description: 'Returns meal for the month',
     type: [DateDto],
   })
-  @Serialize(DateDto)
+  @ReturnType(DateDto)
   async getMealForMonth(): Promise<DateDto[]> {
     return await this.mealsService.getMealsForMonth();
   }
@@ -149,7 +149,7 @@ export class MealsController {
     type: String,
     description: 'End date (YYYY-MM-DD)',
   })
-  @Serialize(DateDto)
+  @ReturnType(DateDto)
   async getMealForPeriod(
     @Query('dateFrom') dateFrom: string,
     @Query('dateTo') dateTo: string,
@@ -176,11 +176,11 @@ export class MealsController {
     type: Number,
     description: 'Number of meals to return',
   })
-  @Serialize(DateDto)
+  @ReturnType(DateDto)
   async getMealsWithLimit(
     @Query('dateFrom') dateFrom: string,
     @Query('limit') limit: number,
-  ): Promise<DateDto[]> {
+  ) {
     return await this.mealsService.getMealsWithLimit(dateFrom, limit);
   }
 
@@ -191,8 +191,8 @@ export class MealsController {
     description: 'Returns rest days for current month',
     type: [DateDto],
   })
-  @Serialize(DateDto)
-  async getCurrentMonthRestDays(): Promise<DateDto[]> {
+  @ReturnType(DateDto)
+  async getCurrentMonthRestDays() {
     return await this.mealsService.getCurrentMonthRestDays();
   }
 
@@ -203,8 +203,8 @@ export class MealsController {
     description: 'Returns rest days for next month',
     type: [DateDto],
   })
-  @Serialize(DateDto)
-  async getNextMonthRestDays(): Promise<DateDto[]> {
+  @ReturnType(DateDto)
+  async getNextMonthRestDays() {
     return await this.mealsService.getNextMonthRestDays();
   }
 
@@ -215,7 +215,7 @@ export class MealsController {
     description: 'Returns rest days for previous month',
     type: [DateDto],
   })
-  @Serialize(DateDto)
+  @ReturnType(DateDto)
   async getPreviousMonthRestDays(): Promise<DateDto[]> {
     return await this.mealsService.getPreviousMonthRestDays();
   }
