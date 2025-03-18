@@ -9,6 +9,8 @@ COPY packages/database/package.json packages/database/
 RUN corepack enable && corepack prepare pnpm --activate
 RUN pnpm install --frozen-lockfile
 
+RUN apt-get update -y && apt-get install -y openssl
+
 COPY . .
 
 WORKDIR /app/packages/database
@@ -21,6 +23,8 @@ FROM node:23-bookworm-slim AS runtime
 
 ENV NODE_ENV=production \
     TZ=Asia/Seoul
+
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 COPY --from=builder /app .
