@@ -1,9 +1,6 @@
-FROM node:23.6.0-alpine3.21 AS builder
+FROM node:23-bookworm-slim AS builder
 
 ENV TZ=Asia/Seoul
-RUN apk add --no-cache bash openssl tzdata libc6-compat \
-    && cp /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -20,14 +17,10 @@ RUN pnpm run generate
 WORKDIR /app/packages/api
 RUN pnpm run build
 
-FROM node:23.6.0-alpine3.21 AS runtime
+FROM node:23-bookworm-slim AS runtime
 
 ENV NODE_ENV=production \
     TZ=Asia/Seoul
-
-RUN apk add --no-cache tzdata \
-    && cp /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
 
 WORKDIR /app
 COPY --from=builder /app .
