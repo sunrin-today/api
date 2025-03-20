@@ -20,13 +20,6 @@ export class CustomSerializerInterceptor implements NestInterceptor {
     const handler = context.getHandler();
     const returnType = this.reflector.get('returnType', handler);
 
-    console.log('Handler:', handler.name); // 핸들러 이름
-    console.log('ReturnType:', returnType); // 리턴 타입
-    console.log(
-      'Has returnType metadata:',
-      this.reflector.get('returnType', handler) !== undefined,
-    );
-
     return next.handle().pipe(
       map((data) => {
         if (!returnType) {

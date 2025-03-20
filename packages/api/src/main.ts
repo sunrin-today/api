@@ -31,13 +31,6 @@ async function bootstrap() {
     .build();
 
   app.useGlobalFilters(new GlobalExceptionFilter());
-  // app.useGlobalInterceptors(new PrismaSerializerInterceptor());
-  // app.useGlobalInterceptors(
-  //   new ClassSerializerInterceptor(app.get(Reflector), {
-  //     excludeExtraneousValues: true,
-  //     exposeUnsetFields: false,
-  //   }),
-  // );
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalInterceptors(
     new CustomSerializerInterceptor(app.get(Reflector)),
