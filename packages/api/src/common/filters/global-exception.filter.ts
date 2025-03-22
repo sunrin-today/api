@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { APIResponseDto } from '../dto/response.dto';
 
 @Catch()
@@ -31,7 +31,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     response.status(status).send(apiResponse);
 
-    this.logger.error(exception);
+    if (status === HttpStatus.NOT_FOUND) return;
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      const request = ctx.getRequest<Request>();
+      this.logger.error('Request Info', {
+        method: request.method,
+        url: request.url,
+        body: request.body,
+        query: request.query,
+        params: request.params,
+      });
+
+      this.logger.error(exception);
+    } else {
+      this.logger.error(exception);
+    }
 
     const isProduction = this.configService.get('NODE_ENV') === 'production';
     if (!isProduction) {
