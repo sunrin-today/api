@@ -3,6 +3,6 @@ model Meal {
   dateId  Int
 
   meal    String  @db.VarChar(30)
-  code    String? @db.VarChar(30)
+  code    String? @db.VarChar(100)
   date    Date    @relation(fields: [dateId], references: [id])
 }
