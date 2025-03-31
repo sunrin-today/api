@@ -14,7 +14,6 @@ RUN apt-get update -y && apt-get install -y openssl
 COPY . .
 
 WORKDIR /app/packages/database
-RUN pnpm run migrate:prod
 RUN pnpm run generate
 
 WORKDIR /app/packages/api
