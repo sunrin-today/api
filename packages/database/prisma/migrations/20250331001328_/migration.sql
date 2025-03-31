@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Meal" ALTER COLUMN "code" SET DATA TYPE VARCHAR(100);
