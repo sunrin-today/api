@@ -165,7 +165,7 @@ export class MealsController {
     type: [DateDto],
   })
   @ApiQuery({
-    name: 'dateFrom',
+    name: 'date_from',
     required: true,
     type: String,
     description: 'Start date (YYYY-MM-DD)',
