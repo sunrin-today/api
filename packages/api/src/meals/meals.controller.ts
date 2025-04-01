@@ -138,21 +138,21 @@ export class MealsController {
     type: [DateDto],
   })
   @ApiQuery({
-    name: 'dateFrom',
+    name: 'date_from',
     required: true,
     type: String,
     description: 'Start date (YYYY-MM-DD)',
   })
   @ApiQuery({
-    name: 'dateTo',
+    name: 'date_to',
     required: true,
     type: String,
     description: 'End date (YYYY-MM-DD)',
   })
   @ReturnType(DateDto)
   async getMealForPeriod(
-    @Query('dateFrom') dateFrom: string,
-    @Query('dateTo') dateTo: string,
+    @Query('date_from') dateFrom: string,
+    @Query('date_to') dateTo: string,
   ): Promise<DateDto[]> {
     return await this.mealsService.getMealsForPeriod(dateFrom, dateTo);
   }
@@ -178,7 +178,7 @@ export class MealsController {
   })
   @ReturnType(DateDto)
   async getMealsWithLimit(
-    @Query('dateFrom') dateFrom: string,
+    @Query('date_from') dateFrom: string,
     @Query('limit') limit: number,
   ) {
     return await this.mealsService.getMealsWithLimit(dateFrom, limit);
