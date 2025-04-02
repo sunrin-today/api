@@ -16,6 +16,11 @@ async function bootstrap() {
 
   const isProduction = configService.get('NODE_ENV') === 'production';
 
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  });
+
   const config = new DocumentBuilder()
     .setTitle('선린투데이 API')
     .setDescription('선린인터넷고등학교 급식 서비스 API')
