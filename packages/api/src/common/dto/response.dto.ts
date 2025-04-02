@@ -16,6 +16,13 @@ export class APIResponseDto {
   public status: HttpStatus = HttpStatus.OK;
 
   @ApiProperty({
+    description: '성공 여부',
+    example: true,
+    default: true,
+  })
+  public success: boolean = true;
+
+  @ApiProperty({
     description: '응답 메시지',
     example: 'OK',
     default: 'OK',

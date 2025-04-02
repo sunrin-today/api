@@ -18,6 +18,7 @@ export class TransformInterceptor implements NestInterceptor {
 
         return {
           status: response.statusCode || HttpStatus.OK,
+          success: true,
           data: data,
         };
       }),

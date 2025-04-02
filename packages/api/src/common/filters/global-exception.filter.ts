@@ -27,6 +27,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const apiResponse = new APIResponseDto();
     apiResponse.status = status;
+    apiResponse.success = false;
+    apiResponse.data = null;
     apiResponse.message = message;
 
     response.status(status).send(apiResponse);
