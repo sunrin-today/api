@@ -38,4 +38,4 @@ docker run ghcr.io/sunrin-today/api
 
 ## License
 
-[MIT](https://github.com/sunrin-today/web/blob/main/LICENSE)
+[MIT](https://github.com/sunrin-today/api/blob/main/LICENSE)
