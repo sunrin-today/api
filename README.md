@@ -2,7 +2,7 @@
 
 # Sunrin Today
 
-Sunrin Internet High School Lunch Service
+Sunrin Internet High School Lunch Service API
 
 <br>
 
