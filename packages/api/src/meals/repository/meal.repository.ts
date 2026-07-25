@@ -11,19 +11,6 @@ import { DateCreateDto, DateDto } from '../dto/meal.dto';
 export class MealRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getMeals() {
-    return await this.prismaService.date.findMany({
-      include: {
-        meals: true,
-      },
-      omit: {},
-    });
-  }
-
-  async getMealById(id: number) {
-    return await this.prismaService.meal.findUnique({ where: { id } });
-  }
-
   async getMealsByDate(date: Date) {
     const foundDate = await this.prismaService.date.findUnique({
       where: { date },

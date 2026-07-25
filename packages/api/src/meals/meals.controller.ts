@@ -23,17 +23,6 @@ import { MealsService } from './meals.service';
 export class MealsController {
   constructor(private readonly mealsService: MealsService) {}
 
-  @Get('/list')
-  @ApiOperation({ summary: 'Get all meals' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns meal for the specified date',
-  })
-  @ReturnType(DateDto)
-  async getMeals() {
-    return await this.mealsService.getMeals();
-  }
-
   @Get('/')
   @ApiOperation({ summary: 'Get meal by date' })
   @ApiQuery({

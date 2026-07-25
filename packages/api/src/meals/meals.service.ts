@@ -15,14 +15,6 @@ export class MealsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getMeals(): Promise<DateDto[]> {
-    return await this.mealRepository.getMeals();
-  }
-
-  async getMealById(id: number) {
-    return await this.mealRepository.getMealById(id);
-  }
-
   async getMealByDate(date: string): Promise<DateDto> {
     const dateObject = new Date(date);
 
