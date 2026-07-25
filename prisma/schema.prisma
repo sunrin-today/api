@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Date {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @unique
+  existence Boolean  @default(true)
+  rest      Boolean  @default(false)
+  meals     Meal[]
+}
+
+model Meal {
+  id     Int     @id @default(autoincrement())
+  dateId Int
+  meal   String  @db.VarChar(30)
+  code   String? @db.VarChar(100)
+  date   Date    @relation(fields: [dateId], references: [id])
+}

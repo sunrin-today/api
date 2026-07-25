@@ -2,3 +2,12 @@
 node_modules
 dist
 **/*.env
+.env
+.env.*
+.git
+.pnpm-store
+packages
+*.tmp.*
+CLAUDE.md
+README.md
+LICENSE

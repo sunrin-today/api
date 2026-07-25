@@ -5,5 +5,7 @@ dist/
 .env
 .cache
 .DS_Store
-client/
+*.tmp.*
 build/
+bun.lockb
+src/generated/
