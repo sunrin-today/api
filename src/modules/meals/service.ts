@@ -44,22 +44,25 @@ function daySpanInclusive(from: Date, to: Date) {
 
 export async function getMealByDate(date: string) {
   const cacheKey = ['date', date];
-  const cached = await cacheGet<ReturnType<typeof mealRepository.serializeDateMeal>>(
-    cacheKey,
-  );
+  const cached = await cacheGet<
+    ReturnType<typeof mealRepository.serializeDateMeal>
+  >(cacheKey);
 
-  if (cached.status === 'hit') return cached.value;
+  if (cached.status === 'hit') {
+    return cached.value;
+  }
   if (cached.status === 'miss') {
     throw new AppError(404, `No meals found for the date ${date}`);
   }
 
   try {
     const data = await mealRepository.getMealsByDate(parseDateOrThrow(date));
-    await cacheSet(cacheKey, data, ttlForDateKey(date));
+    // Fire-and-forget set so response isn't blocked on a second Upstash RTT
+    void cacheSet(cacheKey, data, ttlForDateKey(date));
     return data;
   } catch (error) {
     if (error instanceof AppError && error.status === 404) {
-      await cacheSetMiss(cacheKey, ttlForDateMiss(date));
+      void cacheSetMiss(cacheKey, ttlForDateMiss(date));
     }
     throw error;
   }
@@ -90,7 +93,7 @@ export async function getMealsForWeek() {
 
   try {
     const data = await mealRepository.getMealsForWeek();
-    await cacheSet(cacheKey, data, CACHE_TTL.aggregate);
+    void cacheSet(cacheKey, data, CACHE_TTL.aggregate);
     return data;
   } catch (error) {
     if (error instanceof AppError) throw error;
@@ -108,7 +111,7 @@ export async function getMealsForMonth() {
 
   try {
     const data = await mealRepository.getMealsForMonth();
-    await cacheSet(cacheKey, data, CACHE_TTL.aggregate);
+    void cacheSet(cacheKey, data, CACHE_TTL.aggregate);
     return data;
   } catch (error) {
     if (error instanceof AppError) throw error;
@@ -138,7 +141,7 @@ export async function getMealsForPeriod(dateFrom: string, dateTo: string) {
     if (cached.status === 'hit') return cached.value;
 
     const data = await mealRepository.getMealsForPeriod(fromDate, toDate);
-    await cacheSet(cacheKey, data, CACHE_TTL.aggregate);
+    void cacheSet(cacheKey, data, CACHE_TTL.aggregate);
     return data;
   } catch (error) {
     if (error instanceof AppError) throw error;
@@ -165,7 +168,7 @@ export async function getMealsWithLimit(dateFrom: string, limit: number) {
     if (cached.status === 'hit') return cached.value;
 
     const data = await mealRepository.getMealsWithLimit(fromDate, limit);
-    await cacheSet(cacheKey, data, CACHE_TTL.aggregate);
+    void cacheSet(cacheKey, data, CACHE_TTL.aggregate);
     return data;
   } catch (error) {
     if (error instanceof AppError) throw error;
@@ -181,7 +184,7 @@ async function getRestDaysCached(year: number, month: number) {
   if (cached.status === 'hit') return cached.value;
 
   const data = await mealRepository.getRestDaysForMonth(year, month);
-  await cacheSet(cacheKey, data, CACHE_TTL.rest);
+  void cacheSet(cacheKey, data, CACHE_TTL.rest);
   return data;
 }
 

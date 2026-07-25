@@ -18,6 +18,11 @@ export const CACHE_TTL = {
 
 const MAX_VALUE_BYTES = 64 * 1024; // skip caching oversized payloads
 
+/** Avoid an extra Upstash RTT on every read (version key). */
+const VERSION_FRESH_MS = 1_000;
+let memoryVersion = '0';
+let memoryVersionAt = 0;
+
 type CacheEnvelope<T> =
   | { kind: 'data'; data: T }
   | { kind: 'miss' };
@@ -27,32 +32,44 @@ function clampTtl(seconds: number) {
 }
 
 async function currentVersion(): Promise<string> {
-  const version = await redis.get(VERSION_KEY);
-  return version ?? '0';
+  const now = Date.now();
+  if (now - memoryVersionAt < VERSION_FRESH_MS) {
+    return memoryVersion;
+  }
+
+  try {
+    const version = await redis.get(VERSION_KEY);
+    memoryVersion = version ?? '0';
+    memoryVersionAt = now;
+  } catch (err) {
+    logger.warn({ err }, 'cache version refresh failed');
+  }
+
+  return memoryVersion;
 }
 
-async function key(parts: string[]) {
+async function cacheKey(parts: string[]) {
   const version = await currentVersion();
   return `${PREFIX}:v${version}:${parts.join(':')}`;
 }
 
 export async function invalidateMealCache() {
   try {
-    await redis.incr(VERSION_KEY);
-    // Keep the version key itself from being immortal without bound growth —
-    // INCR is fine; old versioned keys expire via their own TTLs.
+    const next = await redis.incr(VERSION_KEY);
+    memoryVersion = String(next);
+    memoryVersionAt = Date.now();
   } catch (err) {
     logger.warn({ err }, 'cache invalidate failed');
   }
 }
 
-export async function cacheGet<T>(parts: string[]): Promise<
-  | { status: 'hit'; value: T }
-  | { status: 'miss' }
-  | { status: 'absent' }
+export async function cacheGet<T>(
+  parts: string[],
+): Promise<
+  { status: 'hit'; value: T } | { status: 'miss' } | { status: 'absent' }
 > {
   try {
-    const raw = await redis.get(await key(parts));
+    const raw = await redis.get(await cacheKey(parts));
     if (raw == null) return { status: 'absent' };
 
     const parsed = JSON.parse(raw) as CacheEnvelope<T>;
@@ -70,12 +87,18 @@ export async function cacheSet<T>(
   ttlSeconds: number,
 ) {
   try {
-    const payload = JSON.stringify({ kind: 'data', data: value } satisfies CacheEnvelope<T>);
+    const payload = JSON.stringify({
+      kind: 'data',
+      data: value,
+    } satisfies CacheEnvelope<T>);
     if (Buffer.byteLength(payload, 'utf8') > MAX_VALUE_BYTES) {
-      logger.warn({ parts, bytes: Buffer.byteLength(payload, 'utf8') }, 'cache skip oversized');
+      logger.warn(
+        { parts, bytes: Buffer.byteLength(payload, 'utf8') },
+        'cache skip oversized',
+      );
       return;
     }
-    await redis.set(await key(parts), payload, 'EX', clampTtl(ttlSeconds));
+    await redis.set(await cacheKey(parts), payload, 'EX', clampTtl(ttlSeconds));
   } catch (err) {
     logger.warn({ err, parts }, 'cache set failed');
   }
@@ -83,8 +106,10 @@ export async function cacheSet<T>(
 
 export async function cacheSetMiss(parts: string[], ttlSeconds: number) {
   try {
-    const payload = JSON.stringify({ kind: 'miss' } satisfies CacheEnvelope<never>);
-    await redis.set(await key(parts), payload, 'EX', clampTtl(ttlSeconds));
+    const payload = JSON.stringify({
+      kind: 'miss',
+    } satisfies CacheEnvelope<never>);
+    await redis.set(await cacheKey(parts), payload, 'EX', clampTtl(ttlSeconds));
   } catch (err) {
     logger.warn({ err, parts }, 'cache set miss failed');
   }
