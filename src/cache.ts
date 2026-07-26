@@ -1,7 +1,8 @@
 import { logger } from './logger';
 import { redis } from './redis';
 
-const PREFIX = 'sunrin:meal';
+// bump when response shape changes so old payloads are not served
+const PREFIX = 'sunrin:meal:r2';
 const VERSION_KEY = `${PREFIX}:ver`;
 
 /** Hard cap so no key lives forever even if caller passes a large TTL */

@@ -1,7 +1,6 @@
 import { t } from 'elysia';
 
 export const mealItemSchema = t.Object({
-  id: t.Number(),
   meal: t.String(),
   code: t.Nullable(t.String()),
 });

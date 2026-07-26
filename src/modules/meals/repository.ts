@@ -19,7 +19,7 @@ export function serializeDateMeal(entry: DateWithMeals) {
     date: format(entry.date, 'yyyy-MM-dd'),
     existence: entry.existence,
     rest: entry.rest,
-    meals: entry.meals.map(({ id, meal, code }) => ({ id, meal, code })),
+    meals: entry.meals.map(({ meal, code }) => ({ meal, code })),
   };
 }
 
