@@ -1,6 +1,7 @@
 import { cors } from '@elysiajs/cors';
 import { openapi } from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
+import { helmet } from 'elysia-helmet';
 import { env } from './env';
 import { AppError } from './errors';
 import { logRequest, logger } from './logger';
@@ -28,6 +29,21 @@ function apiResponse({
 }
 
 const app = new Elysia()
+  .use(
+    helmet({
+      // Swagger UI needs inline scripts/styles
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https:'],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", 'https:'],
+          fontSrc: ["'self'", 'https:', 'data:'],
+        },
+      },
+    }),
+  )
   .use(
     cors({
       origin: true,
