@@ -108,14 +108,19 @@ const app = new Elysia()
 
     set.status = status;
 
-    logRequest({
-      method: request.method,
-      path,
-      status,
-      ms: Math.round(performance.now() - (requestStartedAt ?? performance.now())),
-      message,
-      err: status >= 500 ? error : undefined,
-    });
+    // Skip logging unknown routes (e.g. GET /favicon.ico)
+    if (!(status === 404 && code === 'NOT_FOUND')) {
+      logRequest({
+        method: request.method,
+        path,
+        status,
+        ms: Math.round(
+          performance.now() - (requestStartedAt ?? performance.now()),
+        ),
+        message,
+        err: status >= 500 ? error : undefined,
+      });
+    }
 
     return apiResponse({
       status,
