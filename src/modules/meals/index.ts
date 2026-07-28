@@ -1,12 +1,12 @@
 import { Elysia, t } from 'elysia';
 import { env } from '../../env';
 import { AppError } from '../../errors';
-import { mealCreateBodySchema } from './schema';
+import { mealBulkCreateBodySchema, mealCreateBodySchema } from './schema';
 import * as mealsService from './service';
 
-function requireKey(key?: string | null) {
-  if (!key || key !== env.KEY) {
-    throw new AppError(401, 'Invalid secret key');
+function requireApiKey(apiKey?: string | null) {
+  if (!apiKey || apiKey !== env.API_KEY) {
+    throw new AppError(401, 'Invalid API key');
   }
 }
 
@@ -103,9 +103,24 @@ export const mealsRoutes = new Elysia({ prefix: '/meal' })
     },
   })
   .post(
+    '/bulk',
+    async ({ body, request, set }) => {
+      requireApiKey(request.headers.get('x-api-key'));
+      set.status = 201;
+      return mealsService.createMealsBulk(body);
+    },
+    {
+      body: mealBulkCreateBodySchema,
+      detail: {
+        summary: 'Bulk create meals',
+        tags: ['meal'],
+      },
+    },
+  )
+  .post(
     '/',
     async ({ body, request, set }) => {
-      requireKey(request.headers.get('key'));
+      requireApiKey(request.headers.get('x-api-key'));
       set.status = 201;
       return mealsService.createMeal(body);
     },
@@ -120,7 +135,7 @@ export const mealsRoutes = new Elysia({ prefix: '/meal' })
   .put(
     '/',
     async ({ body, request }) => {
-      requireKey(request.headers.get('key'));
+      requireApiKey(request.headers.get('x-api-key'));
       return mealsService.updateMeal(body);
     },
     {
@@ -134,7 +149,7 @@ export const mealsRoutes = new Elysia({ prefix: '/meal' })
   .delete(
     '/',
     async ({ query, request }) => {
-      requireKey(request.headers.get('key'));
+      requireApiKey(request.headers.get('x-api-key'));
       return mealsService.deleteMeal(query.date);
     },
     {

@@ -152,9 +152,7 @@ export async function getRestDaysForMonth(year: number, month: number) {
   return restDays.map(serializeDateMeal);
 }
 
-export async function createMeal(data: MealCreateBody) {
-  const date = new Date(data.date);
-
+export async function createMeal(data: MealCreateBody, date: Date) {
   return await prisma.$transaction(
     async (tx) => {
       const foundDate = await tx.date.findUnique({
@@ -166,27 +164,83 @@ export async function createMeal(data: MealCreateBody) {
       }
 
       const created = await tx.date.create({
-        select: { id: true },
         data: {
           date,
           existence: data.existence,
           rest: data.rest,
+          meals: {
+            create: data.meals.map((meal) => ({
+              meal: meal.meal,
+              code: meal.code,
+            })),
+          },
+        },
+        include: {
+          meals: true,
         },
       });
 
-      await tx.meal.createMany({
-        data: data.meals.map((meal: MealCreateBody['meals'][number]) => ({
-          meal: meal.meal,
-          code: meal.code,
-          dateId: created.id,
-        })),
-      });
-
-      return true;
+      return serializeDateMeal(created);
     },
     {
       maxWait: 5000,
       timeout: 10000,
+    },
+  );
+}
+
+export async function createMealsBulk(
+  items: Array<MealCreateBody & { dateObject: Date }>,
+) {
+  return await prisma.$transaction(
+    async (tx) => {
+      const dateObjects = items.map((item) => item.dateObject);
+      const existing = await tx.date.findMany({
+        where: {
+          date: {
+            in: dateObjects,
+          },
+        },
+        select: {
+          date: true,
+        },
+      });
+
+      if (existing.length > 0) {
+        const dates = existing
+          .map((row) => format(row.date, 'yyyy-MM-dd'))
+          .join(', ');
+        throw new AppError(
+          400,
+          `Meal already exists for the date(s): ${dates}`,
+        );
+      }
+
+      const createdDates: string[] = [];
+
+      for (const item of items) {
+        await tx.date.create({
+          data: {
+            date: item.dateObject,
+            existence: item.existence,
+            rest: item.rest,
+            meals: {
+              create: item.meals.map((meal) => ({
+                meal: meal.meal,
+                code: meal.code,
+              })),
+            },
+          },
+        });
+
+        createdDates.push(item.date);
+      }
+
+      return { dates: createdDates };
+    },
+    {
+      maxWait: 10_000,
+      timeout: 60_000,
     },
   );
 }

@@ -10,9 +10,9 @@ import {
 } from '../../cache';
 import { AppError } from '../../errors';
 import * as mealRepository from './repository';
-import type { MealCreateBody } from './schema';
+import type { MealBulkCreateBody, MealCreateBody } from './schema';
 
-function parseDateOrThrow(date: string) {
+export function parseDateOrThrow(date: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     throw new AppError(400, 'Invalid date format. Please use YYYY-MM-DD');
   }
@@ -225,7 +225,24 @@ export async function getPreviousMonthRestDays() {
 }
 
 export async function createMeal(data: MealCreateBody) {
-  const result = await mealRepository.createMeal(data);
+  const dateObject = parseDateOrThrow(data.date);
+  const result = await mealRepository.createMeal(data, dateObject);
+  await invalidateMealCache();
+  return result;
+}
+
+export async function createMealsBulk(data: MealBulkCreateBody) {
+  const dates = data.items.map((item) => item.date);
+  if (new Set(dates).size !== dates.length) {
+    throw new AppError(400, 'Duplicate dates in bulk create request');
+  }
+
+  const items = data.items.map((item) => ({
+    ...item,
+    dateObject: parseDateOrThrow(item.date),
+  }));
+
+  const result = await mealRepository.createMealsBulk(items);
   await invalidateMealCache();
   return result;
 }

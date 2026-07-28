@@ -16,7 +16,7 @@ export const env = {
   PORT: Number(
     Bun.env.PORT ?? (Bun.env.NODE_ENV === 'production' ? 3000 : 8000),
   ),
-  KEY: required('KEY'),
+  API_KEY: required('API_KEY'),
   /** Pooled connection for the app (PrismaClient) */
   DATABASE_URL: required('DATABASE_URL'),
   /** Redis for meal response cache */

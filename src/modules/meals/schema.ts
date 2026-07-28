@@ -24,6 +24,13 @@ export const mealCreateBodySchema = t.Object({
   rest: t.Boolean(),
 });
 
+export const mealBulkCreateBodySchema = t.Object({
+  items: t.Array(mealCreateBodySchema, {
+    minItems: 1,
+    maxItems: 100,
+  }),
+});
+
 export type MealCreateBody = {
   date: string;
   meals: Array<{
@@ -32,4 +39,8 @@ export type MealCreateBody = {
   }>;
   existence: boolean;
   rest: boolean;
+};
+
+export type MealBulkCreateBody = {
+  items: MealCreateBody[];
 };
