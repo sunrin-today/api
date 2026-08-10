@@ -28,6 +28,32 @@ function apiResponse({
   };
 }
 
+function resolveErrorMessage(error: unknown, code: string | number) {
+  if (error instanceof AppError) {
+    return error.message;
+  }
+  if (code === 'VALIDATION' && error instanceof Error) {
+    return error.message;
+  }
+  if (code === 'NOT_FOUND') {
+    return 'Not Found';
+  }
+
+  if (error instanceof Error) {
+    const parts = [error.message];
+    let cause: unknown = error.cause;
+    while (cause instanceof Error) {
+      if (cause.message && !parts.includes(cause.message)) {
+        parts.push(cause.message);
+      }
+      cause = cause.cause;
+    }
+    return parts.join(' — ');
+  }
+
+  return 'Internal Server Error';
+}
+
 const app = new Elysia()
   .use(
     helmet({
@@ -95,16 +121,7 @@ const app = new Elysia()
               ? error.status
               : 500;
 
-    const message =
-      error instanceof AppError
-        ? error.message
-        : code === 'VALIDATION'
-          ? error.message
-          : code === 'NOT_FOUND'
-            ? 'Not Found'
-            : error instanceof Error
-              ? error.message
-              : 'Internal Server Error';
+    const message = resolveErrorMessage(error, code);
 
     set.status = status;
 
@@ -125,8 +142,7 @@ const app = new Elysia()
     return apiResponse({
       status,
       success: false,
-      message:
-        status >= 500 && env.isProduction ? 'Internal Server Error' : message,
+      message,
     });
   })
   .onAfterHandle(({ responseValue, set, path }) => {
