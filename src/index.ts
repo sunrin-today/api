@@ -2,6 +2,7 @@ import { cors } from '@elysiajs/cors';
 import { openapi } from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 import { helmet } from 'elysia-helmet';
+import { connectPrisma } from './db';
 import { env } from './env';
 import { AppError } from './errors';
 import { logRequest, logger } from './logger';
@@ -197,6 +198,11 @@ try {
   logger.error({ err }, 'redis connect failed — continuing without cache');
 }
 
+try {
+  await connectPrisma();
+} catch (err) {
+  logger.error({ err }, 'database connect failed — continuing without eager connect');
+}
 const appServer = app.listen({
   port: env.PORT,
   hostname: '0.0.0.0',
