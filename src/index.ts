@@ -192,17 +192,6 @@ const app = new Elysia()
   })
   .use(mealsRoutes);
 
-try {
-  await connectRedis();
-} catch (err) {
-  logger.error({ err }, 'redis connect failed — continuing without cache');
-}
-
-try {
-  await connectPrisma();
-} catch (err) {
-  logger.error({ err }, 'database connect failed — continuing without eager connect');
-}
 const appServer = app.listen({
   port: env.PORT,
   hostname: '0.0.0.0',
@@ -215,5 +204,17 @@ logger.info(
   },
   'Sunrin Today API started',
 );
+
+try {
+  await connectRedis();
+} catch (err) {
+  logger.error({ err }, 'redis connect failed — continuing without cache');
+}
+
+try {
+  await connectPrisma();
+} catch (err) {
+  logger.error({ err }, 'database connect failed — continuing without eager connect');
+}
 
 export type App = typeof app;

@@ -161,4 +161,21 @@ export const mealsRoutes = new Elysia({ prefix: '/meal' })
         tags: ['meal'],
       },
     },
+  )
+  .delete(
+    '/period',
+    async ({ query, request }) => {
+      requireApiKey(request.headers.get('x-api-key'));
+      return mealsService.deleteMealsForPeriod(query.date_from, query.date_to);
+    },
+    {
+      query: t.Object({
+        date_from: t.String(),
+        date_to: t.String(),
+      }),
+      detail: {
+        summary: 'Delete meals for a date period',
+        tags: ['meal'],
+      },
+    },
   );

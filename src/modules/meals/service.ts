@@ -258,3 +258,16 @@ export async function deleteMeal(date: string) {
   await invalidateMealCache();
   return result;
 }
+
+export async function deleteMealsForPeriod(dateFrom: string, dateTo: string) {
+  const fromDate = parseDateOrThrow(dateFrom);
+  const toDate = parseDateOrThrow(dateTo);
+
+  if (fromDate > toDate) {
+    throw new AppError(400, 'Start date must be before or equal to end date');
+  }
+
+  const result = await mealRepository.deleteMealsForPeriod(fromDate, toDate);
+  await invalidateMealCache();
+  return result;
+}

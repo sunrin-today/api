@@ -326,3 +326,56 @@ export async function deleteMeal(date: string) {
     },
   );
 }
+
+export async function deleteMealsForPeriod(dateFrom: Date, dateTo: Date) {
+  return await prisma.$transaction(
+    async (tx) => {
+      const found = await tx.date.findMany({
+        where: {
+          date: {
+            gte: dateFrom,
+            lte: dateTo,
+          },
+        },
+        select: {
+          id: true,
+          date: true,
+        },
+        orderBy: {
+          date: 'asc',
+        },
+      });
+
+      if (found.length === 0) {
+        return { dates: [] as string[], count: 0 };
+      }
+
+      const ids = found.map((row) => row.id);
+
+      await tx.meal.deleteMany({
+        where: {
+          dateId: {
+            in: ids,
+          },
+        },
+      });
+
+      await tx.date.deleteMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+
+      return {
+        dates: found.map((row) => format(row.date, 'yyyy-MM-dd')),
+        count: found.length,
+      };
+    },
+    {
+      maxWait: 10_000,
+      timeout: 60_000,
+    },
+  );
+}
