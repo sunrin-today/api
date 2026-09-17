@@ -92,8 +92,8 @@ const app = new Elysia()
             email: 'jeewon.kwon.0817@gmail.com',
           },
           license: {
-            name: 'MIT',
-            url: 'https://opensource.org/licenses/MIT',
+            name: 'BSD-2-Clause',
+            url: 'https://opensource.org/licenses/BSD-2-Clause',
           },
         },
         servers: [

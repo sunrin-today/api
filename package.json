@@ -2,7 +2,7 @@
   "name": "@sunrintoday/api",
   "version": "0.0.1",
   "private": true,
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "type": "module",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
